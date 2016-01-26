@@ -28,6 +28,7 @@ public:
 
     /// global variable for elapsed time
     static clock_t ELAPSED_TIME;
+
 };
 } /* namespace SURA */
 

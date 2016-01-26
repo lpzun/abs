@@ -22,19 +22,17 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
     this->initl_TS = Util::create_thread_state_from_str(initl);
     this->final_TS = Util::create_thread_state_from_str(final);
 
-    cout << this->initl_TS << endl; // delete-----------------
-    cout << this->final_TS << endl; // delete-----------------
-
     if (filename == "X") {
         throw bws_runtime_error("no input file");
     } else {
-        string file = filename;
+        ifstream org_in;
         if (!Refs::OPT_INPUT_TTS) {
-            cout << "I am here...\n";
-            file = file.substr(0, file.find_last_of("."));
-            file += ".tts";
+            org_in.open(this->parse_BP(filename).c_str());
+            string line;
+            std::getline(org_in, line);
+        } else {
+            org_in.open(filename.c_str());
         }
-        ifstream org_in(filename.c_str());
         if (!org_in.good())
             throw bws_runtime_error("Input file does not find!");
         Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
@@ -44,8 +42,8 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         ifstream new_in("/tmp/tmp.ttd.no_comment");
 
         new_in >> Thread_State::S >> Thread_State::L;
-
-        cout << Thread_State::S << "" << Thread_State::L << endl;
+        if (!Refs::OPT_INPUT_TTS)
+            final_TS = Thread_State(Thread_State::S - 1, Thread_State::L - 1);
 
         Shared_State s1, s2;              /// shared states
         Local_State l1, l2;               /// local  states
@@ -86,6 +84,14 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
 
     }
     return this->standard_BWS();
+}
+
+string BWS::parse_BP(const string& filename) {
+    string file = filename;
+    cout << "I am here..." << file << "\n";
+    file = file.substr(0, file.find_last_of("."));
+    file += ".tts";
+    return file;
 }
 
 /**

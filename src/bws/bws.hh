@@ -42,6 +42,7 @@ private:
             const Local_State &inc);
     Locals update_counter(const Locals &Z, const Local_State &dec,
             const Local_State &inc, bool& is_spawn);
+    string parse_BP(const string& filename);
 };
 
 } /* namespace sura */
