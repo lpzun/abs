@@ -96,11 +96,12 @@ bool BWS::standard_BWS() {
 	if (this->final_TS == this->initl_TS)
 		return false;
 	cout << "I ma here......1...\n";
-	worklist.emplace(this->final_TS);
+	Global_State start(this->final_TS);
+	cout<<"start..."<<start<<endl;
+	worklist.emplace(start);
 	if (!worklist.empty()) {
 		const auto& _tau = worklist.front();
-		worklist.pop();
-		cout << "I ma here......3...\n";
+		cout << "I ma here......3..."<<_tau<<endl;;
 		if (this->is_minimal(_tau, explored)) {
 
 			cout << "I ma here......4...\n";
@@ -120,6 +121,8 @@ bool BWS::standard_BWS() {
 			/// step 2: insert _tau to explored states
 			this->minimize(_tau, explored); /// minimize the explored states
 			explored.emplace_back(_tau); /// insert tau to explored
+
+			worklist.pop();
 		} /// discard _tau if it is non-minimal
 	}
 	return false;
