@@ -68,7 +68,7 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         }
         new_in.close();
 
-        if (Refs::OPT_PRINT_ADJ) {
+        if (Refs::OPT_PRINT_ADJ && Refs::OPT_INPUT_TTS) {
             for (auto idst = reverse_TTS.begin(); idst != reverse_TTS.end();
                     ++idst) {
                 for (auto isrc = idst->second.begin();
@@ -81,17 +81,45 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
             }
             cout << endl;
         }
-
     }
+    if (this->is_connected())
+        return true;
     return this->standard_BWS();
 }
 
 string BWS::parse_BP(const string& filename) {
     string file = filename;
-    cout << "I am here..." << file << "\n";
     file = file.substr(0, file.find_last_of("."));
     file += ".tts";
     return file;
+}
+
+bool BWS::is_connected() {
+    queue<Thread_State, deque<Thread_State>> worklist;
+    worklist.push(this->final_TS);
+
+    vector<vector<bool>> visited(Thread_State::S,
+            vector<bool>(Thread_State::L, false));
+    visited[this->final_TS.get_share()][this->final_TS.get_local()] = true;
+    while (!worklist.empty()) {
+        const auto u = worklist.front();
+        worklist.pop();
+        auto ifind = this->reverse_TTS.find(u);
+        if (ifind != this->reverse_TTS.end()) {
+            const auto& predecessors = ifind->second;
+            for (auto iprev = predecessors.begin(); iprev != predecessors.end();
+                    ++iprev) {
+                const auto& prev = *iprev;
+                if (prev == this->initl_TS)
+                    return true;
+                if (!visited[prev.get_share()][prev.get_local()]) {
+                    visited[prev.get_share()][prev.get_local()] = true;
+                    worklist.push(prev);
+                }
+            }
+        }
+    }
+    return false;
 }
 
 /**
@@ -99,39 +127,31 @@ string BWS::parse_BP(const string& filename) {
  * @return
  */
 bool BWS::standard_BWS() {
+    cout << "begin backward......." << endl;
     queue<Global_State, deque<Global_State>> worklist;
     deque<Global_State> explored;
     if (this->final_TS == this->initl_TS)
         return false;
-    cout << "I ma here......1...\n";
     Global_State start(this->final_TS);
-    cout << "start..." << start << endl;
     worklist.emplace(start);
     while (!worklist.empty()) {
         const auto _tau = worklist.front();
         worklist.pop();
-        cout << "I ma here......3..." << _tau << endl;
 
         if (this->is_minimal(_tau, explored)) {
-
-            cout << "I ma here......4...\n";
             const auto images = this->pre_image(_tau);
-            cout << "I ma here......5...\n";
             /// step 1: insert all pre-images to worklist
             for (auto ip = images.cbegin(); ip != images.cend(); ++ip) {
                 const auto& tau = *ip;
                 if (this->is_reached(tau)) { /// tau covered by upward(init)
                     return true;
                 }
-                cout << tau << endl;
+//                cout << tau << endl; //delete------------------
                 worklist.emplace(tau);
             }
-
-            cout << "I ma here......2...\n";
             /// step 2: insert _tau to explored states
             this->minimize(_tau, explored); /// minimize the explored states
             explored.emplace_back(_tau); /// insert tau to explored
-            cout << "worklist.size = " << worklist.size() << endl;
         } /// discard _tau if it is non-minimal
     }
     return false;
@@ -176,7 +196,6 @@ deque<Global_State> BWS::pre_image(const Global_State& _tau) {
             for (auto iprev = predecessors.begin(); iprev != predecessors.end();
                     ++iprev) {
                 const auto& prev = *iprev;
-                cout << curr << "I ma here......6..." << prev << endl;
                 if (this->is_spawn_transition(curr, prev)) {
                     bool is_updated = true;
                     const auto& Z = this->update_counter(_tau.get_locals(),
@@ -184,7 +203,6 @@ deque<Global_State> BWS::pre_image(const Global_State& _tau) {
                     if (is_updated)
                         images.emplace_back(prev.get_share(), Z);
                 } else {
-                    cout << "I ma here......8..." << prev << endl;
                     const auto& Z = this->update_counter(_tau.get_locals(),
                             local, prev.get_local());
                     images.emplace_back(prev.get_share(), Z); ///update shared state
@@ -197,7 +215,6 @@ deque<Global_State> BWS::pre_image(const Global_State& _tau) {
 
 Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
         const Local_State &inc) {
-    cout << "I ma here......7...\n";
     auto _Z = Z;
     if (dec == inc)
         return Z;
