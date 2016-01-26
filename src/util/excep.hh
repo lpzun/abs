@@ -15,26 +15,26 @@
 using std::runtime_error;
 using std::exception;
 using std::string;
-
-class ural_rt_err: public runtime_error {
+namespace sura {
+class bws_runtime_error: public runtime_error {
 public:
-    ural_rt_err() :
+    bws_runtime_error() :
             runtime_error("") {
     }
-    ural_rt_err(const std::string& msg) :
+    bws_runtime_error(const std::string& msg) :
             runtime_error(msg) {
     }
 };
 
-class sura_exception: public exception {
+class bws_exception: public exception {
 public:
     string message;
     short code;
-    inline sura_exception() :
+    inline bws_exception() :
             message(""), code(-1) {
 
     }
-    inline sura_exception(const string& message, const short& code = -1) :
+    inline bws_exception(const string& message, const short& code = -1) :
             message(message), code(code) {
     }    // must provide some message
 
@@ -42,5 +42,5 @@ public:
         return message.c_str();
     }
 };
-
+}
 #endif /* EXCEP_HH_ */

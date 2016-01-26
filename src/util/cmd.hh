@@ -7,6 +7,7 @@
 
 #ifndef CMD_HH_
 #define CMD_HH_
+
 #include <iostream>
 #include <ostream>
 #include <string>

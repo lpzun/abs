@@ -47,7 +47,7 @@ short compare_map(const map<ushort, ushort>& m1,
         }
         s1_iter++, s2_iter++;
     }
-    throw ural_rt_err("COMPARE::compare: internal");
+    throw sura::bws_runtime_error("COMPARE::compare: internal");
 }
 
 /**
@@ -76,7 +76,7 @@ template<class T> short compare_container(const T& x, const T& y) {
             return +1;
         ++xi, ++yi;
     }
-    throw ural_rt_err("COMPARE::compare: internal");
+    throw sura::bws_runtime_error("COMPARE::compare: internal");
 }
 }
 
@@ -200,7 +200,8 @@ string hourize(culong& seconds) {
  * 			x[0] + x[1] + ... + x[n-1] as follows:
  *        bool firstTime = true;
  *        for (ushort i = 0; i < n; ++i)
- *        cout << PPRINT::firstTimeOrNot(firstTime, " + ", string("x[") + widthify(i) + "]");
+ *            cout << PPRINT::firstTimeOrNot(firstTime, " + ",
+ *                              string("x[") + widthify(i) + "]");
  *
  * @param firstTime
  * @param connective

@@ -27,10 +27,11 @@
 #  define DBG_LOC();
 #endif // DEBUG
 
+namespace sura {
 class Debug {
 public:
-	Debug();
-	virtual ~Debug();
+    Debug();
+    virtual ~Debug();
 };
-
+}
 #endif /* DEBUG_HH_ */

@@ -26,12 +26,6 @@ public:
 
     static bool OPT_INPUT_TTS;
 
-    static Thread_State INITL_TS;
-    static Thread_State FINAL_TS;
-
-    static adj_list reverse_TTD;
-    static adj_list spawntr_TTD;
-
     /// global variable for elapsed time
     static clock_t ELAPSED_TIME;
 };

@@ -78,7 +78,7 @@ void cmd_line::get_command_line(const string& prog,
 
             }
             if (flag)
-                throw ural_rt_err(
+                throw sura::bws_runtime_error(
                         "Cmd_Line::get_command_line: " + arg
                                 + ": no such keyword argument.\n"
                                 + help_message);
@@ -130,7 +130,8 @@ bool cmd_line::arg_bool(const unsigned short& type, const string& arg) {
     auto ifind = std::find(switches[type].begin(), switches[type].end(),
             Switch(type, arg));
     if (ifind == switches[type].end())
-        throw ural_rt_err("Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
+        throw sura::bws_runtime_error(
+                "Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
     return ifind->is_value();
 }
 
@@ -144,7 +145,8 @@ string cmd_line::arg_value(const short& type, const string& arg) {
     auto ifind = std::find(options[type].begin(), options[type].end(),
             Options(type, arg));
     if (ifind == options[type].end())
-        throw ural_rt_err("Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
+        throw sura::bws_runtime_error(
+                "Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
     return ifind->get_value();
 }
 
@@ -167,7 +169,7 @@ void cmd_line::print_usage_info(const string& prog_name, cushort& indent,
                             + "]", this->name_width, PPRINT::LEFTJUST)
             << PPRINT::widthify("show help message", PPRINT::LEFTJUST) << "\n";
     out << " "
-            << PPRINT::widthify(prog_name + " source.ttd ", this->name_width,
+            << PPRINT::widthify(prog_name + " source.bp ", this->name_width,
                     PPRINT::LEFTJUST)
             << PPRINT::widthify("check given program", PPRINT::LEFTJUST)
             << "\n";
@@ -218,12 +220,12 @@ void cmd_line::create_argument_list() {
     this->set_types(types);
     this->add_switch(default_opts(), SHORT_HELP_OPT, LONG_HELP_OPT,
             "help information");
-    this->add_switch(default_opts(), "-s", "--statistics",
-            "show statistic information");
 
     /// problem instance
     this->add_option(prob_inst_opts(), "-f", "--input-file",
-            "thread-state transition diagram (.ttd file)", "X");
+            "boolean program or thread transition system", "X");
+
+    this->add_switch(prob_inst_opts(), "-t", "--input-tts", "input is tts");
     this->add_option(prob_inst_opts(), "-a", "--target",
             "a target thread state (e.g., 0|0)", "0|0");
     this->add_option(prob_inst_opts(), "-i", "--initial",
@@ -231,40 +233,13 @@ void cmd_line::create_argument_list() {
 
     this->add_switch(prob_inst_opts(), "-l", "--adj-list",
             "show the adjacency list");
-    this->add_switch(prob_inst_opts(), "-dot", "--ettd2dot",
-            "output generated expanded TTD to a .dot file");
 
     /// exploration mode
-    this->add_option(exp_mode_opts(), "-m", "--mode",
-            (string("exploration mode:\n") //
-                    ///+ string(25, ' ') + " -" + '"' + opt_mode_fws() + '"' + ": forward search: oracle\n" //
-                    + string(25, ' ') + " -" + '"' + opt_mode_ldp() + '"'
-                    + ": logic decision problem\n" //
-            ///		+ string(25, ' ') + " -" + '"' + opt_mode_con() + '"' + ": concurrent forward/logic decision\n" //
-            ).c_str(), opt_mode_ldp());
-
-    this->add_switch(exp_mode_opts(), "-t", "--bwstree",
-            "show backward search tree");
-    this->add_switch(exp_mode_opts(), "-p", "--path",
-            "show all paths in SCC quotient graph");
-    this->add_switch(exp_mode_opts(), "-cmp", "--complete",
-            "verification via a complete approach");
-    this->add_switch(exp_mode_opts(), "-bws", "--backward",
-            "backward search based encoding (default=false)");
-    this->add_switch(exp_mode_opts(), "-sh", "--shared",
-            "shared states based constraints (default=false)");
 
     /// SMT Solver options
     //DBG_STD(cmd.add_option(SMT_SOLVER_OPTS, "-smt", "--smt-solver", "set the SMT Solver to be used", "z3"));
 
     /// other options
-    this->add_switch(other_opts(), "-ce", "--counterexample",
-            "show counterexample");
-    this->add_switch(other_opts(), "-ns", "--nosimpl",
-            "simplify the generated Presburger formula");
-    this->add_switch(other_opts(), "-cs", "--cstr",
-            "output intermediate constraints");
-
     this->add_switch(other_opts(), "-cmd", "--cmd-line",
             "show the command line");
     this->add_switch(other_opts(), "-all", "--all",
@@ -276,30 +251,19 @@ void cmd_line::create_argument_list() {
 string cmd_line::create_version_info() {
     string info = ""; ///
     info ///
-    .append(
-            "* *     _/    _/    _/_/_/       _/_/_/     _/    _/    _/           _/_/_/    * *\n") ///
-    .append(
-            "* *    _/    _/    _/    _/    _/          _/    _/    _/          _/    _/    * *\n") ///
-    .append(
-            "* *   _/    _/    _/_/_/       _/_/_/     _/    _/    _/          _/_/_/_/     * *\n") ///
-    .append(
-            "* *  _/    _/    _/  _/            _/    _/    _/    _/          _/    _/      * *\n") ///
-    .append(
-            "* * _/_/_/_/    _/     _/    _/_/_/     _/_/_/_/    _/_/_/_/    _/    _/  "
-                    + VERSION + " * *\n") ///
-    .append(
-            "----------------------------------------------------------------------------------\n") ///
-    .append(
-            "* *                      Unbounded-Thread Reachability via                     * *\n") ///
-    .append(
-            "* *                   Symbolic Execution and Loop Acceleration                 * *\n")	///
-    .append(
-            "* *                         Thomas Wahl's Research Group                       * *\n") ///
-    .append(
-            "* *                    Northeastern University, United States                  * *\n") ///
-    .append("* *                                         Build Time: ").append(
-    __DATE__).append(" @ ").append(__TIME__).append(" * *\n") ///
-    .append(
-            "----------------------------------------------------------------------------------\n");
+    .append("* *   _/_/_/_/_/         _/_/_/_/         _/_/_/_/     * *\n") ///
+    .append("* *      _/            _/                _/            * *\n") ///
+    .append("* *     _/              _/_/_/          _/_/_/_/       * *\n") ///
+    .append("* *    _/                   _/         _/              * *\n") ///
+    .append("* *   _/            _/_/_/_/          _/_/_/_/    " + VERSION ///
+            + " * *\n") ///
+    .append("----------------------------------------------------------\n") ///
+    .append("* *        Unbounded-Thread Program Verification       * *\n") ///
+    .append("* *            using Thread-State Equations            * *\n") ///
+    .append("* *            Thomas Wahl's Research Group            * *\n") ///
+    .append("* *        Northeastern University, United States      * *\n") ///
+    .append("* *                 Build Time: ").append(
+    __DATE__).append(" @ ").append(__TIME__).append(" * *\n").append(
+            "----------------------------------------------------------\n");
     return info;
 }

@@ -9,7 +9,10 @@
 #include <iostream>
 
 #include "util/cmd.hh"
+#include "util/refs.hh"
+#include "bws/bws.hh"
 
+using namespace sura;
 using namespace std;
 
 int main(const int argc, const char * const * const argv) {
@@ -20,12 +23,31 @@ int main(const int argc, const char * const * const argv) {
         } catch (cmd_line::Help) {
             return 0;
         }
-    } catch (const sura_exception & e) {
+
+        Refs::OPT_PRINT_ADJ = cmd.arg_bool(cmd_line::prob_inst_opts(),
+                "--adj-list");
+        Refs::OPT_INPUT_TTS = cmd.arg_bool(cmd_line::prob_inst_opts(),
+                "--input-tts");
+
+        Refs::OPT_PRINT_CMD = cmd.arg_bool(cmd_line::other_opts(),
+                "--cmd-line");
+        Refs::OPT_PRINT_ALL = cmd.arg_bool(cmd_line::other_opts(), "--all");
+
+        const string& filename = cmd.arg_value(cmd_line::prob_inst_opts(),
+                "--input-file");
+        const string& initl_ts = cmd.arg_value(cmd_line::prob_inst_opts(),
+                "--initial");
+        const string& final_ts = cmd.arg_value(cmd_line::prob_inst_opts(),
+                "--target");
+
+        BWS bws;
+        bws.reachability_analysis_via_bws(filename, initl_ts, final_ts);
+    } catch (const bws_exception & e) {
         e.what();
     } catch (const std::exception& e) {
         std::cerr << e.what() << endl;
     } catch (...) {
-        std::cerr << sura_exception("main: unknown exception occurred").what()
+        std::cerr << bws_exception("main: unknown exception occurred").what()
                 << endl;
     }
 }
