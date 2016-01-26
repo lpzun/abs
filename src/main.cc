@@ -41,7 +41,17 @@ int main(const int argc, const char * const * const argv) {
                 "--target");
 
         BWS bws;
-        bws.reachability_analysis_via_bws(filename, initl_ts, final_ts);
+        bool is_reachable = bws.reachability_analysis_via_bws(filename,
+                initl_ts, final_ts);
+        cout << "======================================================\n";
+        cout << " (" << final_ts << ")";
+        if (is_reachable)
+            cout << " is reachable: verification failed!\n";
+        else
+            cout << " is unreachable: verification successful!\n";
+        cout << "======================================================"
+                << endl;
+
     } catch (const bws_exception & e) {
         e.what();
     } catch (const std::exception& e) {
