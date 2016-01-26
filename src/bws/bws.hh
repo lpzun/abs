@@ -40,7 +40,8 @@ private:
 
     Locals update_counter(const Locals &Z, const Local_State &dec,
             const Local_State &inc);
-    pair<Locals, bool> update_counter(const Locals &Z, const Local_State &dec);
+    Locals update_counter(const Locals &Z, const Local_State &dec,
+            const Local_State &inc, bool& is_spawn);
 };
 
 } /* namespace sura */
