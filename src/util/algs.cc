@@ -64,15 +64,15 @@ template<class T> short compare_container(const T& x, const T& y) {
     typename T::const_iterator xi = x.begin(), yi = y.begin(), x_end = x.end(),
             y_end = y.end();
     while (true) {
-        if (xi == x_end && yi == y_end) // x == y
+        if (xi == x_end && yi == y_end) // x = y
             return 0;
-        else if (xi == x_end)                // x < y
+        else if (xi == x_end)           // x < y
             return -1;
-        else if (yi == y_end)                // y < x
+        else if (yi == y_end)           // y < x
             return +1;
-        else if (*xi < *yi)                  // x < y
+        else if (*xi < *yi)             // x < y
             return -1;
-        else if (*yi < *xi)                  // y < x
+        else if (*yi < *xi)             // y < x
             return +1;
         ++xi, ++yi;
     }

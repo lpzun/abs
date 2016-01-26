@@ -9,10 +9,11 @@
 #define REFS_HH_
 
 #include "state.hh"
-#include "graph.hh"
 namespace sura {
 
-typedef unsigned int vertex;
+using vertex = unsigned int;
+/// adjacency list
+using adj_list = map<Thread_State, deque<Thread_State>>;
 
 class Refs {
 public:
@@ -20,33 +21,16 @@ public:
     ~Refs();
 
     static bool OPT_PRINT_ALL;
-    static bool OPT_PRINT_DOT;
-    static bool OPT_SIMPLIFIED;
     static bool OPT_PRINT_CMD;
-    static bool OPT_NOT_SIMPLE;
-    static bool IS_BWS_TREE;
-    static bool OPT_PRINT_PATH;
-    static bool OPT_CONSTRAINT;
     static bool OPT_PRINT_ADJ;
-    static bool OPT_COMPLETE;
-    static bool OPT_BACKWARD;
-    static bool OPT_SHARED;
 
-    static ushort TARGET_THR_NUM;
-
-//	static string FILE_NAME_PREFIX;
+    static bool OPT_INPUT_TTS;
 
     static Thread_State INITL_TS;
     static Thread_State FINAL_TS;
 
-    static adj_list original_TTD;
-    static adj_list spawntra_TTD;
-
-    static vector<Thread_State> mapping_TS;
-    static map<Thread_State, id_thread_state> activee_TS;
-
-    static uint INITL_N;
-    static uint SPAWN_Z;
+    static adj_list reverse_TTD;
+    static adj_list spawntr_TTD;
 
     /// global variable for elapsed time
     static clock_t ELAPSED_TIME;
