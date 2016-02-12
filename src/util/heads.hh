@@ -27,6 +27,7 @@
 #include <deque>
 #include <unordered_map>
 #include <queue>
+#include <bitset>
 #include <utility>
 #include <iterator>
 #include <algorithm>
@@ -56,6 +57,7 @@ using std::pair;
 using std::unordered_map;
 using std::queue;
 using std::multimap;
+using std::bitset;
 
 using std::shared_ptr;
 using std::unique_ptr;

@@ -116,6 +116,4 @@ bool Parser::getline(istream& in, string& line, const char& eol) {
         line += c;
     return c != 0;
 }
-
-/// end of PARSER
 } /* namespace SURA */

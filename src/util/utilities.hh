@@ -43,7 +43,6 @@ private:
             const string& comment);
     static bool getline(istream& in, string& line, const char& eol = '\n');
 };
-
 } /* namespace SURA */
 
 #endif /* UTILITIES_HH_ */

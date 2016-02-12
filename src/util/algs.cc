@@ -214,5 +214,6 @@ string firstTimeOrNot(bool& firstTime, const string& connective,
     firstTime = false;
     return result;
 }
-}                     /// end of PPRINT
+
+}/// end of COMPARE
 
