@@ -7,7 +7,7 @@
 
 #include "bws.hh"
 
-namespace sura {
+namespace bws {
 
 BWS::BWS() :
         initl_TS(), final_TS(), reverse_TTS(), respawn_TTS() {

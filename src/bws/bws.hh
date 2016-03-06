@@ -12,7 +12,7 @@
 #include "../util/algs.hh"
 #include "../util/utilities.hh"
 
-namespace sura {
+namespace bws {
 
 class BWS {
 public:

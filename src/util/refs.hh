@@ -9,7 +9,7 @@
 #define REFS_HH_
 
 #include "state.hh"
-namespace sura {
+namespace bws {
 
 using vertex = unsigned int;
 /// adjacency list

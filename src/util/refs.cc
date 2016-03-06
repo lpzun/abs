@@ -7,7 +7,7 @@
 
 #include "refs.hh"
 
-namespace sura {
+namespace bws {
 
 Refs::Refs() {
 

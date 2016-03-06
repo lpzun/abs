@@ -78,7 +78,7 @@ void cmd_line::get_command_line(const string& prog,
 
             }
             if (flag)
-                throw sura::bws_runtime_error(
+                throw bws::bws_runtime_error(
                         "Cmd_Line::get_command_line: " + arg
                                 + ": no such keyword argument.\n"
                                 + help_message);
@@ -130,7 +130,7 @@ bool cmd_line::arg_bool(const unsigned short& type, const string& arg) {
     auto ifind = std::find(switches[type].begin(), switches[type].end(),
             Switch(type, arg));
     if (ifind == switches[type].end())
-        throw sura::bws_runtime_error(
+        throw bws::bws_runtime_error(
                 "Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
     return ifind->is_value();
 }
@@ -145,7 +145,7 @@ string cmd_line::arg_value(const short& type, const string& arg) {
     auto ifind = std::find(options[type].begin(), options[type].end(),
             Options(type, arg));
     if (ifind == options[type].end())
-        throw sura::bws_runtime_error(
+        throw bws::bws_runtime_error(
                 "Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
     return ifind->get_value();
 }

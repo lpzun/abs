@@ -27,7 +27,7 @@
 #  define DBG_LOC();
 #endif // DEBUG
 
-namespace sura {
+namespace bws {
 class Debug {
 public:
     Debug();

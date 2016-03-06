@@ -11,7 +11,7 @@
 #include "heads.hh"
 #include "refs.hh"
 
-namespace sura {
+namespace bws {
 
 class Util {
 public:

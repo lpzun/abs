@@ -15,7 +15,7 @@
 using std::runtime_error;
 using std::exception;
 using std::string;
-namespace sura {
+namespace bws {
 class bws_runtime_error: public runtime_error {
 public:
     bws_runtime_error() :

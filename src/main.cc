@@ -12,7 +12,7 @@
 #include "util/refs.hh"
 #include "bws/bws.hh"
 
-using namespace sura;
+using namespace bws;
 using namespace std;
 
 int main(const int argc, const char * const * const argv) {

@@ -7,7 +7,7 @@
 
 #include "utilities.hh"
 
-namespace sura {
+namespace bws {
 
 Util::Util() {
     // TODO Auto-generated constructor stub

@@ -10,7 +10,7 @@
 
 #include "algs.hh"
 
-namespace sura {
+namespace bws {
 
 /// define local state
 typedef unsigned short Local_State;
