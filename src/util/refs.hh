@@ -10,7 +10,6 @@
 
 #include "state.hh"
 namespace bws {
-
 using vertex = unsigned int;
 /// adjacency list
 using adj_list = map<Thread_State, deque<Thread_State>>;

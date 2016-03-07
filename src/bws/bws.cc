@@ -19,8 +19,8 @@ BWS::~BWS() {
 
 bool BWS::reachability_analysis_via_bws(const string& filename,
         const string& initl, const string& final, const bool& is_self_loop) {
-    this->initl_TS = Util::create_thread_state_from_str(initl);
-    this->final_TS = Util::create_thread_state_from_str(final);
+    this->initl_TS = utils::create_thread_state_from_str(initl);
+    this->final_TS = utils::create_thread_state_from_str(final);
 
     if (filename == "X") {
         throw bws_runtime_error("no input file");
@@ -35,7 +35,7 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         }
         if (!org_in.good())
             throw bws_runtime_error("Input file does not find!");
-        Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
+        iparser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
         org_in.close();
 
         /// new input file after removing comments
@@ -128,7 +128,9 @@ bool BWS::is_connected() {
  */
 bool BWS::standard_BWS() {
     cout << "begin backward......." << endl;
+    /// the set of backward discovered global states
     queue<Global_State, deque<Global_State>> worklist;
+    /// the set of explored global states
     deque<Global_State> explored;
     if (this->final_TS == this->initl_TS)
         return false;
@@ -146,7 +148,6 @@ bool BWS::standard_BWS() {
                 if (this->is_reached(tau)) { /// tau covered by upward(init)
                     return true;
                 }
-//                cout << tau << endl; //delete------------------
                 worklist.emplace(tau);
             }
             /// step 2: insert _tau to explored states

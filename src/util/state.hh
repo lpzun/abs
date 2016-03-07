@@ -37,7 +37,7 @@ public:
     inline Thread_State();
     inline Thread_State(const Thread_State& t);
     inline Thread_State(const Shared_State& share, const Local_State& local);
-    virtual ~Thread_State() {
+    ~Thread_State() {
     }
 
     ostream& to_stream(ostream& out = cout) const;
@@ -165,7 +165,7 @@ public:
     inline Global_State(const Shared_State& share, const Locals& locals,
             shared_ptr<const Global_State> pi);
 
-    virtual ~Global_State() {
+    ~Global_State() {
     }
 
     ostream& to_stream(ostream& out = cout, const string& sep = "|") const;

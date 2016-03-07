@@ -12,11 +12,13 @@
 #include "refs.hh"
 
 namespace bws {
-
-class Util {
+/**
+ * @brief a tool class that defines utilities
+ */
+class utils {
 public:
-    Util();
-    virtual ~Util();
+    utils();
+     ~utils();
     static Thread_State create_thread_state_from_str(const string& s_ts,
             const char& delim = '|');
     static Thread_State create_thread_state_from_gs_str(const string& s_ts,
@@ -31,7 +33,10 @@ public:
 
 };
 
-class Parser {
+/**
+ * @brief the input parser that parses TTS
+ */
+class iparser {
 public:
     static void remove_comments(istream& in, const string& filename,
             const string& comment);

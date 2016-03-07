@@ -146,7 +146,7 @@ inline bool operator<(const Switch& arg1, const Switch& arg2) {
 class cmd_line {
 public:
     cmd_line();
-    virtual ~cmd_line();
+    ~cmd_line();
 
     struct Help {
     };
