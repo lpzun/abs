@@ -44,7 +44,7 @@ int main(const int argc, const char * const * const argv) {
         bool is_reachable = bws.reachability_analysis_via_bws(filename,
                 initl_ts, final_ts);
         cout << "======================================================\n";
-        cout << bws.getInitlTs();
+        cout << bws.getFinalTs();
         if (is_reachable)
             cout << " is reachable: verification failed!\n";
         else
