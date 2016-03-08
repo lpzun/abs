@@ -15,10 +15,10 @@
 # See an example in EXAMPLES/makefile-local-vars.                         #
 ###########################################################################
 # Override these variables (or add new ones) locally
-APP	     = bws # the name of application
+APP	     = abs # the name of application
 Z3DIR        = /usr/local/Z3#          
-ILIBS        = -L $(Z3DIR)/lib -lz3#                                   -lm # config your z3 lib     here
-IINCLUDE     = -I $(Z3DIR)/include/#                                       # config your z3 include here
+ILIBS        = -lz#-L $(Z3DIR)/lib -lz3#                                   -lm # config your z3 lib     here
+IINCLUDE     =# -I $(Z3DIR)/include/#                                       # config your z3 include here
 
 #ISTD	      = -std=c++0x                                                 # for old cpp standard
 ISTD	     = -std=c++11
