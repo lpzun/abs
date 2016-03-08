@@ -28,15 +28,13 @@ private:
     adj_list respawn_TTS;
 
     bool standard_BWS();
-
+    deque<Global_State> step(const Global_State& _tau);
     bool is_spawn_transition(const Thread_State& src, const Thread_State& dst);
 
     bool is_reached(const Global_State& s);
     bool is_covered(const Global_State& s1, const Global_State& s2);
     bool is_minimal(const Global_State& s, const deque<Global_State>& R);
     void minimize(const Global_State& s, deque<Global_State>& R);
-
-    deque<Global_State> pre_image(const Global_State& _tau);
 
     Locals update_counter(const Locals &Z, const Local_State &dec,
             const Local_State &inc);

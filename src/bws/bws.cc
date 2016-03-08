@@ -127,7 +127,7 @@ bool BWS::is_connected() {
  * @return
  */
 bool BWS::standard_BWS() {
-    cout << "begin backward......." << endl;
+    cout << "begin backward search..." << endl;
     /// the set of backward discovered global states
     queue<Global_State, deque<Global_State>> worklist;
     /// the set of explored global states
@@ -141,7 +141,7 @@ bool BWS::standard_BWS() {
         worklist.pop();
 
         if (this->is_minimal(_tau, explored)) {
-            const auto images = this->pre_image(_tau);
+            const auto images = this->step(_tau);
             /// step 1: insert all pre-images to worklist
             for (auto ip = images.cbegin(); ip != images.cend(); ++ip) {
                 const auto& tau = *ip;
@@ -187,7 +187,12 @@ void BWS::minimize(const Global_State& s, deque<Global_State>& R) {
     }
 }
 
-deque<Global_State> BWS::pre_image(const Global_State& _tau) {
+/**
+ * @brief preimage computation
+ * @param _tau
+ * @return
+ */
+deque<Global_State> BWS::step(const Global_State& _tau) {
     deque<Global_State> images;
     for (auto local = 0; local < Thread_State::L; ++local) {
         Thread_State curr(_tau.get_share(), local);
@@ -214,11 +219,19 @@ deque<Global_State> BWS::pre_image(const Global_State& _tau) {
     return images;
 }
 
+/**
+ * @brief update counters
+ * @param Z
+ * @param dec
+ * @param inc
+ * @return
+ */
 Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
         const Local_State &inc) {
-    auto _Z = Z;
     if (dec == inc)
         return Z;
+
+    auto _Z = Z;
 
     /// decrease counter: this is executed only when there is a local
     /// state dec in current local part
@@ -270,7 +283,8 @@ Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
 /**
  * @brief to determine if s belongs to upward-closure of initial states
  * @param s
- * @return bool
+ * @return true : if s is in the upward-closure of initial state
+ *         false: otherwise
  */
 bool BWS::is_reached(const Global_State& s) {
     if (s.get_share() == this->initl_TS.get_share()) {
@@ -283,22 +297,33 @@ bool BWS::is_reached(const Global_State& s) {
 }
 
 /**
- *
+ * @brief to determine whether s1 is covered by s2.
+ *        NOTE: this function assumes that the local parts of s1 and s2
+ *        are ordered.
  * @param s1
  * @param s2
- * @return
+ * @return true : if s1 <= s2
+ *         false: otherwise
  */
 bool BWS::is_covered(const Global_State& s1, const Global_State& s2) {
     if (s1.get_share() == s2.get_share()
-            && s1.get_locals().size() <= s2.get_locals().size()) { /// compare shared state
-        for (auto is1 = s1.get_locals().cbegin(); is1 != s1.get_locals().cend();
-                ++is1) { /// compare local parts
-            auto ifind = s2.get_locals().find(is1->first);
-            if (ifind == s2.get_locals().end()) { /// no same local state
+            && s1.get_locals().size() <= s2.get_locals().size()) {
+        auto is1 = s1.get_locals().cbegin();
+        auto is2 = s2.get_locals().cbegin();
+        while (is1 != s1.get_locals().cend()) {
+            /// check if is2 reaches to the end
+            if (is2 == s2.get_locals().cend())
                 return false;
-            } else { /// there is a same local states
-                if (is1->second > ifind->second) /// the counter is bigger
+            /// compare the map's contents
+            if (is1->first == is2->first) {
+                if (is1->second <= is2->second)
+                    ++is1, ++is2;
+                else
                     return false;
+            } else if (is1->first > is2->first) {
+                ++is2;
+            } else if (is1->first < is2->first) {
+                return false;
             }
         }
         return true;
