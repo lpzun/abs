@@ -43,6 +43,7 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         new_in >> Thread_State::S >> Thread_State::L;
 
         if (!Refs::OPT_INPUT_TTS) {
+
             final_TS = this->set_up_TS(this->parse_BP(filename) + ".prop");
             cout << final_TS << endl;
         } else {

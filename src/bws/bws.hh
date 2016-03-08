@@ -11,6 +11,9 @@
 #include "../util/state.hh"
 #include "../util/algs.hh"
 #include "../util/utilities.hh"
+#include "../../../iotf/src/iotf.hh"
+
+using namespace iotf;
 
 namespace bws {
 
