@@ -52,6 +52,8 @@ private:
 	string parse_BP(const string& filename);
 
 	bool is_connected();
+
+	Thread_State set_up_TS(const string& s_ts);
 };
 
 } /* namespace sura */
