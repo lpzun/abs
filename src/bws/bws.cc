@@ -17,6 +17,15 @@ BWS::~BWS() {
 
 }
 
+/**
+ * @brief the interface of backward reachability analysis
+ * @param filename
+ * @param s_initl
+ * @param s_final
+ * @param is_self_loop
+ * @return true : if the final state is reachable;
+ *         false: otherwise.
+ */
 bool BWS::reachability_analysis_via_bws(const string& filename,
         const string& s_initl, const string& s_final,
         const bool& is_self_loop) {
@@ -43,12 +52,18 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         new_in >> Thread_State::S >> Thread_State::L;
 
         if (!Refs::OPT_INPUT_TTS) {
-
-            final_TS = this->set_up_TS(this->parse_BP(filename) + ".prop");
-            cout << final_TS << endl;
+            final_TS.emplace_back(
+                    this->set_up_TS(this->parse_BP(filename) + ".prop"));
+            for (const auto& final : this->final_TS)
+                cout << final << endl;
         } else {
-            initl_TS = this->set_up_TS(s_initl);
-            final_TS = this->set_up_TS(s_final);
+            initl_TS.emplace_back(this->set_up_TS(s_initl));
+            final_TS.emplace_back(this->set_up_TS(s_final));
+            for (const auto& initl : this->initl_TS) {
+                for (const auto& final : this->final_TS)
+                    if (initl == final)
+                        return true;
+            }
         }
 
         Shared_State s1, s2;              /// shared states
@@ -92,12 +107,22 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
     return this->standard_BWS();
 }
 
+/**
+ * @brief parse Boolean program
+ * @param filename
+ * @return
+ */
 string BWS::parse_BP(const string& filename) {
     string file = filename;
     file = file.substr(0, file.find_last_of("."));
     return file;
 }
 
+/**
+ * @brief setup initial or final thread state
+ * @param s_ts
+ * @return
+ */
 Thread_State BWS::set_up_TS(const string& s_ts) {
     /// setup the initial thread state
     if (s_ts.find('|') != std::string::npos) {
@@ -116,13 +141,20 @@ Thread_State BWS::set_up_TS(const string& s_ts) {
     }
 }
 
+/**
+ * @brief an optimization
+ * @return
+ */
 bool BWS::is_connected() {
     queue<Thread_State, deque<Thread_State>> worklist;
-    worklist.push(this->final_TS);
-
     vector<vector<bool>> visited(Thread_State::S,
             vector<bool>(Thread_State::L, false));
-    visited[this->final_TS.get_share()][this->final_TS.get_local()] = true;
+
+    for (const auto& final : this->final_TS) {
+        worklist.emplace(final);
+        visited[final.get_share()][final.get_local()] = true;
+    }
+
     while (!worklist.empty()) {
         const auto u = worklist.front();
         worklist.pop();
@@ -132,8 +164,12 @@ bool BWS::is_connected() {
             for (auto iprev = predecessors.begin(); iprev != predecessors.end();
                     ++iprev) {
                 const auto& prev = *iprev;
-                if (prev == this->initl_TS)
-                    return true;
+
+                for (const auto& initl : this->initl_TS) {
+                    if (prev == initl)
+                        return true;
+                }
+
                 if (!visited[prev.get_share()][prev.get_local()]) {
                     visited[prev.get_share()][prev.get_local()] = true;
                     worklist.push(prev);
@@ -154,26 +190,25 @@ bool BWS::standard_BWS() {
     queue<Global_State, deque<Global_State>> worklist;
     /// the set of explored global states
     deque<Global_State> explored;
-    if (this->final_TS == this->initl_TS)
-        return false;
-    Global_State start(this->final_TS);
-    worklist.emplace(start);
+    for (const auto& final : final_TS)
+        worklist.emplace(final); /// insert all final states
+
     while (!worklist.empty()) {
         const auto _tau = worklist.front();
         worklist.pop();
 
+        /// step 1: if exists t \in <explored> such that
+        ///         t <= _tau, then discard _tau
         if (this->is_minimal(_tau, explored)) {
-            const auto images = this->step(_tau);
+            const auto& images = this->step(_tau);
             /// step 1: insert all pre-images to worklist
-            for (auto ip = images.cbegin(); ip != images.cend(); ++ip) {
-                const auto& tau = *ip;
-                if (this->is_reached(tau)) { /// tau covered by upward(init)
+            for (const auto& tau : images) {
+                /// return true if tau \in upward(init)
+                if (this->is_reached(tau))
                     return true;
-                }
-                //cout << tau << endl;
+
                 worklist.emplace(tau);
             }
-            // DBG_LOC(2);
             /// step 2: insert _tau to explored states
             this->minimize(_tau, explored); /// minimize the explored states
             explored.emplace_back(_tau); /// insert tau to explored
@@ -207,8 +242,9 @@ void BWS::minimize(const Global_State& s, deque<Global_State>& R) {
     for (auto im = R.begin(); im != R.end();) {
         if (is_covered(s, *im)) {
             im = R.erase(im);
-        } else
+        } else {
             ++im;
+        }
     }
 }
 
@@ -224,9 +260,7 @@ deque<Global_State> BWS::step(const Global_State& _tau) {
         auto ifind = this->reverse_TTS.find(curr);
         if (ifind != this->reverse_TTS.end()) {
             const auto& predecessors = ifind->second;
-            for (auto iprev = predecessors.begin(); iprev != predecessors.end();
-                    ++iprev) {
-                const auto& prev = *iprev;
+            for (const auto& prev : predecessors) {
                 if (this->is_spawn_transition(curr, prev)) {
                     bool is_updated = true;
                     const auto& Z = this->update_counter(_tau.get_locals(),
@@ -312,12 +346,13 @@ Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
  *         false: otherwise
  */
 bool BWS::is_reached(const Global_State& s) {
-    if (s.get_share() == this->initl_TS.get_share()) {
-        if (s.get_locals().size() == 1) {
-            if (s.get_locals().begin()->first == this->initl_TS.get_local())
+    for (const auto& initl : this->initl_TS)
+        if (s.get_share() == initl.get_share()) {
+            if (s.get_locals().size() == 1
+                    && s.get_locals().begin()->first == initl.get_local())
                 return true;
+
         }
-    }
     return false;
 }
 

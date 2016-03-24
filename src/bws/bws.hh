@@ -19,44 +19,44 @@ namespace bws {
 
 class BWS {
 public:
-	BWS();
-	~BWS();
-	bool reachability_analysis_via_bws(const string& filename,
-			const string& s_initl, const string& s_final,
-			const bool& is_self_loop = false);
+    BWS();
+    ~BWS();
+    bool reachability_analysis_via_bws(const string& filename,
+            const string& s_initl, const string& s_final,
+            const bool& is_self_loop = false);
 
-	const Thread_State& getFinalTs() const {
-		return final_TS;
-	}
+    const deque<Thread_State>& get_final_TS() const {
+        return final_TS;
+    }
 
-	const Thread_State& getInitlTs() const {
-		return initl_TS;
-	}
+    const deque<Thread_State>& get_initl_TS() const {
+        return initl_TS;
+    }
 
 private:
-	Thread_State initl_TS;
-	Thread_State final_TS;
-	adj_list reverse_TTS;
-	adj_list respawn_TTS;
+    deque<Thread_State> initl_TS;
+    deque<Thread_State> final_TS;
+    adj_list reverse_TTS;
+    adj_list respawn_TTS;
 
-	bool standard_BWS();
-	deque<Global_State> step(const Global_State& _tau);
-	bool is_spawn_transition(const Thread_State& src, const Thread_State& dst);
+    bool standard_BWS();
+    deque<Global_State> step(const Global_State& _tau);
+    bool is_spawn_transition(const Thread_State& src, const Thread_State& dst);
 
-	bool is_reached(const Global_State& s);
-	bool is_covered(const Global_State& s1, const Global_State& s2);
-	bool is_minimal(const Global_State& s, const deque<Global_State>& R);
-	void minimize(const Global_State& s, deque<Global_State>& R);
+    bool is_reached(const Global_State& s);
+    bool is_covered(const Global_State& s1, const Global_State& s2);
+    bool is_minimal(const Global_State& s, const deque<Global_State>& R);
+    void minimize(const Global_State& s, deque<Global_State>& R);
 
-	Locals update_counter(const Locals &Z, const Local_State &dec,
-			const Local_State &inc);
-	Locals update_counter(const Locals &Z, const Local_State &dec,
-			const Local_State &inc, bool& is_spawn);
-	string parse_BP(const string& filename);
+    Locals update_counter(const Locals &Z, const Local_State &dec,
+            const Local_State &inc);
+    Locals update_counter(const Locals &Z, const Local_State &dec,
+            const Local_State &inc, bool& is_spawn);
+    string parse_BP(const string& filename);
 
-	bool is_connected();
+    bool is_connected();
 
-	Thread_State set_up_TS(const string& s_ts);
+    Thread_State set_up_TS(const string& s_ts);
 };
 
 } /* namespace sura */
