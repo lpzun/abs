@@ -11,9 +11,6 @@
 #include "../util/state.hh"
 #include "../util/algs.hh"
 #include "../util/utilities.hh"
-#include "../../../iotf/src/iotf.hh"
-
-using namespace iotf;
 
 namespace bws {
 
@@ -38,6 +35,7 @@ private:
     deque<Thread_State> final_TS;
     adj_list reverse_TTS;
     adj_list respawn_TTS;
+    map<Shared_State, set<Local_State>> expansion_L;
 
     bool standard_BWS();
     deque<Global_State> step(const Global_State& _tau);

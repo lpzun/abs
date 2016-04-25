@@ -71,7 +71,8 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         string sep;                       /// separator
         while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
             DBG_STD(
-                    cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << " "<< "\n")
+                    cout << s1 << " " << l1 << " -> " ///
+                    << s2 << " " << l2 << " "<< "\n")
             if (!is_self_loop && s1 == s2 && l1 == l2) /// remove self loops
                 continue;
 
@@ -82,6 +83,7 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
                     respawn_TTS[dst_TS].emplace_back(src_TS);
                 }
                 reverse_TTS[dst_TS].emplace_back(src_TS);
+                expansion_L[s2].insert(l2); /// store expansion local states
             } else {
                 throw bws_runtime_error("illegal transition");
             }
@@ -98,6 +100,12 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
                     else
                         cout << *isrc << "->" << idst->first << "\n";
                 }
+            }
+            for (const auto& p : expansion_L) {
+                cout << "s" << p.first << ": ";
+                for (const auto& l : p.second)
+                    cout << l << " ";
+                cout << "\n";
             }
             cout << endl;
         }
@@ -135,7 +143,7 @@ Thread_State BWS::set_up_TS(const string& s_ts) {
             in.close();
             return utils::create_thread_state_from_str(s_io);
         } else {
-            //throw bws_runtime_error("initial state file does not find!");
+            // throw bws_runtime_error("initial state file does not find!");
             return Thread_State(Thread_State::S - 1, Thread_State::L - 1);
         }
     }
@@ -151,6 +159,9 @@ bool BWS::is_connected() {
             vector<bool>(Thread_State::L, false));
 
     for (const auto& final : this->final_TS) {
+        if (final.get_share() > Thread_State::S
+                || final.get_local() > Thread_State::L)
+            continue;
         worklist.emplace(final);
         visited[final.get_share()][final.get_local()] = true;
     }
@@ -251,30 +262,34 @@ void BWS::minimize(const Global_State& s, deque<Global_State>& R) {
 /**
  * @brief preimage computation
  * @param _tau
- * @return
+ * @return deque
  */
 deque<Global_State> BWS::step(const Global_State& _tau) {
     deque<Global_State> images;
-    for (auto local = 0; local < Thread_State::L; ++local) {
-        Thread_State curr(_tau.get_share(), local);
-        auto ifind = this->reverse_TTS.find(curr);
-        if (ifind != this->reverse_TTS.end()) {
-            const auto& predecessors = ifind->second;
-            for (const auto& prev : predecessors) {
-                if (this->is_spawn_transition(curr, prev)) {
-                    bool is_updated = true;
-                    const auto& Z = this->update_counter(_tau.get_locals(),
-                            local, prev.get_local(), is_updated);
-                    if (is_updated)
+    cout << _tau << "\n";
+    auto iexps = this->expansion_L.find(_tau.get_share());
+    if (iexps != this->expansion_L.end())
+        for (const auto& local : iexps->second) {
+            Thread_State curr(_tau.get_share(), local);
+            auto ifind = this->reverse_TTS.find(curr);
+            if (ifind != this->reverse_TTS.end()) {
+                const auto& predecessors = ifind->second;
+                for (const auto& prev : predecessors) {
+                    if (this->is_spawn_transition(curr, prev)) {
+                        bool is_updated = true;
+                        const auto& Z = this->update_counter(_tau.get_locals(),
+                                local, prev.get_local(), is_updated);
+                        if (is_updated)
+                            images.emplace_back(prev.get_share(), Z);
+                    } else {
+                        const auto& Z = this->update_counter(_tau.get_locals(),
+                                local, prev.get_local());
+                        /// update shared state ...
                         images.emplace_back(prev.get_share(), Z);
-                } else {
-                    const auto& Z = this->update_counter(_tau.get_locals(),
-                            local, prev.get_local());
-                    images.emplace_back(prev.get_share(), Z); ///update shared state
+                    }
                 }
             }
         }
-    }
     return images;
 }
 
