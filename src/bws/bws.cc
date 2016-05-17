@@ -33,7 +33,7 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         throw bws_runtime_error("no input file");
     } else {
         ifstream org_in;
-        if (!Refs::OPT_INPUT_TTS) {
+        if (!refer::OPT_INPUT_TTS) {
             cout << "Boolean program analysis...\n";
             org_in.open((this->parse_BP(filename) + ".tts").c_str());
             string line;
@@ -49,9 +49,9 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
         /// new input file after removing comments
         ifstream new_in("/tmp/tmp.ttd.no_comment");
 
-        new_in >> Thread_State::S >> Thread_State::L;
+        new_in >> thread_state::S >> thread_state::L;
 
-        if (!Refs::OPT_INPUT_TTS) {
+        if (!refer::OPT_INPUT_TTS) {
             final_TS.emplace_back(
                     this->set_up_TS(this->parse_BP(filename) + ".prop"));
             for (const auto& final : this->final_TS)
@@ -66,8 +66,8 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
             }
         }
 
-        Shared_State s1, s2;              /// shared states
-        Local_State l1, l2;               /// local  states
+        shared_state s1, s2;              /// shared states
+        local_state l1, l2;               /// local  states
         string sep;                       /// separator
         while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
             DBG_STD(
@@ -77,20 +77,20 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
                 continue;
 
             if (sep == "->" || sep == "+>") {
-                const Thread_State src_TS(s1, l1);
-                const Thread_State dst_TS(s2, l2);
+                const thread_state src_TS(s1, l1);
+                const thread_state dst_TS(s2, l2);
                 if (sep == "+>") {
                     respawn_TTS[dst_TS].emplace_back(src_TS);
                 }
                 reverse_TTS[dst_TS].emplace_back(src_TS);
-                expansion_L[s2].insert(l2); /// store expansion local states
+                candidate_L[s2].insert(l2); /// store expansion local states
             } else {
                 throw bws_runtime_error("illegal transition");
             }
         }
         new_in.close();
 
-        if (Refs::OPT_PRINT_ADJ && Refs::OPT_INPUT_TTS) {
+        if (refer::OPT_PRINT_ADJ && refer::OPT_INPUT_TTS) {
             for (auto idst = reverse_TTS.begin(); idst != reverse_TTS.end();
                     ++idst) {
                 for (auto isrc = idst->second.begin();
@@ -101,7 +101,7 @@ bool BWS::reachability_analysis_via_bws(const string& filename,
                         cout << *isrc << "->" << idst->first << "\n";
                 }
             }
-            for (const auto& p : expansion_L) {
+            for (const auto& p : candidate_L) {
                 cout << "s" << p.first << ": ";
                 for (const auto& l : p.second)
                     cout << l << " ";
@@ -131,7 +131,7 @@ string BWS::parse_BP(const string& filename) {
  * @param s_ts
  * @return
  */
-Thread_State BWS::set_up_TS(const string& s_ts) {
+thread_state BWS::set_up_TS(const string& s_ts) {
     /// setup the initial thread state
     if (s_ts.find('|') != std::string::npos) {
         return utils::create_thread_state_from_str(s_ts);
@@ -144,7 +144,7 @@ Thread_State BWS::set_up_TS(const string& s_ts) {
             return utils::create_thread_state_from_str(s_io);
         } else {
             // throw bws_runtime_error("initial state file does not find!");
-            return Thread_State(Thread_State::S - 1, Thread_State::L - 1);
+            return thread_state(thread_state::S - 1, thread_state::L - 1);
         }
     }
 }
@@ -154,13 +154,13 @@ Thread_State BWS::set_up_TS(const string& s_ts) {
  * @return
  */
 bool BWS::is_connected() {
-    queue<Thread_State, deque<Thread_State>> worklist;
-    vector<vector<bool>> visited(Thread_State::S,
-            vector<bool>(Thread_State::L, false));
+    queue<thread_state, deque<thread_state>> worklist;
+    vector<vector<bool>> visited(thread_state::S,
+            vector<bool>(thread_state::L, false));
 
     for (const auto& final : this->final_TS) {
-        if (final.get_share() > Thread_State::S
-                || final.get_local() > Thread_State::L)
+        if (final.get_share() > thread_state::S
+                || final.get_local() > thread_state::L)
             continue;
         worklist.emplace(final);
         visited[final.get_share()][final.get_local()] = true;
@@ -198,9 +198,9 @@ bool BWS::is_connected() {
 bool BWS::standard_BWS() {
     cout << "begin backward search..." << endl;
     /// the set of backward discovered global states
-    queue<Global_State, deque<Global_State>> worklist;
+    queue<global_state, deque<global_state>> worklist;
     /// the set of explored global states
-    deque<Global_State> explored;
+    deque<global_state> explored;
     for (const auto& final : final_TS)
         worklist.emplace(final); /// insert all final states
 
@@ -234,7 +234,7 @@ bool BWS::standard_BWS() {
  * @param R
  * @return
  */
-bool BWS::is_minimal(const Global_State& s, const deque<Global_State>& R) {
+bool BWS::is_minimal(const global_state& s, const deque<global_state>& R) {
     for (auto im = R.cbegin(); im != R.cend(); ++im) {
         if (is_covered(*im, s)) {
             return false;
@@ -249,7 +249,7 @@ bool BWS::is_minimal(const Global_State& s, const deque<Global_State>& R) {
  * @param R
  * @return
  */
-void BWS::minimize(const Global_State& s, deque<Global_State>& R) {
+void BWS::minimize(const global_state& s, deque<global_state>& R) {
     for (auto im = R.begin(); im != R.end();) {
         if (is_covered(s, *im)) {
             im = R.erase(im);
@@ -264,13 +264,13 @@ void BWS::minimize(const Global_State& s, deque<Global_State>& R) {
  * @param _tau
  * @return deque
  */
-deque<Global_State> BWS::step(const Global_State& _tau) {
-    deque<Global_State> images;
-    cout << _tau << "\n";
-    auto iexps = this->expansion_L.find(_tau.get_share());
-    if (iexps != this->expansion_L.end())
+deque<global_state> BWS::step(const global_state& _tau) {
+    deque<global_state> images;
+    cout << _tau << "\n"; /// delete this ---------------
+    auto iexps = this->candidate_L.find(_tau.get_share());
+    if (iexps != this->candidate_L.end())
         for (const auto& local : iexps->second) {
-            Thread_State curr(_tau.get_share(), local);
+            thread_state curr(_tau.get_share(), local);
             auto ifind = this->reverse_TTS.find(curr);
             if (ifind != this->reverse_TTS.end()) {
                 const auto& predecessors = ifind->second;
@@ -300,8 +300,8 @@ deque<Global_State> BWS::step(const Global_State& _tau) {
  * @param inc
  * @return
  */
-Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
-        const Local_State &inc) {
+ca_locals BWS::update_counter(const ca_locals &Z, const local_state &dec,
+        const local_state &inc) {
     if (dec == inc)
         return Z;
 
@@ -334,8 +334,8 @@ Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
  * @param is_updated
  * @return
  */
-Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
-        const Local_State &inc, bool& is_updated) {
+ca_locals BWS::update_counter(const ca_locals &Z, const local_state &dec,
+        const local_state &inc, bool& is_updated) {
     auto _Z = Z;
     auto iinc = _Z.find(inc);
     if (iinc != _Z.end()) {
@@ -360,7 +360,7 @@ Locals BWS::update_counter(const Locals &Z, const Local_State &dec,
  * @return true : if s is in the upward-closure of initial state
  *         false: otherwise
  */
-bool BWS::is_reached(const Global_State& s) {
+bool BWS::is_reached(const global_state& s) {
     for (const auto& initl : this->initl_TS)
         if (s.get_share() == initl.get_share()) {
             if (s.get_locals().size() == 1
@@ -380,7 +380,7 @@ bool BWS::is_reached(const Global_State& s) {
  * @return true : if s1 <= s2
  *         false: otherwise
  */
-bool BWS::is_covered(const Global_State& s1, const Global_State& s2) {
+bool BWS::is_covered(const global_state& s1, const global_state& s2) {
     if (s1.get_share() == s2.get_share()
             && s1.get_locals().size() <= s2.get_locals().size()) {
         auto is1 = s1.get_locals().cbegin();
@@ -415,8 +415,8 @@ bool BWS::is_covered(const Global_State& s1, const Global_State& s2) {
  *          true : src +> dst
  *          false: otherwise
  */
-bool BWS::is_spawn_transition(const Thread_State& src,
-        const Thread_State& dst) {
+bool BWS::is_spawn_transition(const thread_state& src,
+        const thread_state& dst) {
     auto ifind = this->respawn_TTS.find(src);
     if (ifind == this->respawn_TTS.end()) {
         return false;

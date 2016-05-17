@@ -12,12 +12,12 @@
 namespace bws {
 using vertex = unsigned int;
 /// adjacency list
-using adj_list = map<Thread_State, deque<Thread_State>>;
+using adj_list = map<thread_state, deque<thread_state>>;
 
-class Refs {
+class refer {
 public:
-    Refs();
-    ~Refs();
+    refer();
+    ~refer();
 
     static bool OPT_PRINT_ALL;
     static bool OPT_PRINT_CMD;

@@ -9,8 +9,8 @@
 #include <iostream>
 
 #include "util/cmd.hh"
-#include "util/refs.hh"
 #include "bws/bws.hh"
+#include "util/refer.hh"
 
 using namespace bws;
 using namespace std;
@@ -24,14 +24,14 @@ int main(const int argc, const char * const * const argv) {
             return 0;
         }
 
-        Refs::OPT_PRINT_ADJ = cmd.arg_bool(cmd_line::prob_inst_opts(),
+        refer::OPT_PRINT_ADJ = cmd.arg_bool(cmd_line::prob_inst_opts(),
                 "--adj-list");
-        Refs::OPT_INPUT_TTS = cmd.arg_bool(cmd_line::prob_inst_opts(),
+        refer::OPT_INPUT_TTS = cmd.arg_bool(cmd_line::prob_inst_opts(),
                 "--input-tts");
 
-        Refs::OPT_PRINT_CMD = cmd.arg_bool(cmd_line::other_opts(),
+        refer::OPT_PRINT_CMD = cmd.arg_bool(cmd_line::other_opts(),
                 "--cmd-line");
-        Refs::OPT_PRINT_ALL = cmd.arg_bool(cmd_line::other_opts(), "--all");
+        refer::OPT_PRINT_ALL = cmd.arg_bool(cmd_line::other_opts(), "--all");
 
         const string& filename = cmd.arg_value(cmd_line::prob_inst_opts(),
                 "--input-file");

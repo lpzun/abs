@@ -28,10 +28,10 @@
 #endif // DEBUG
 
 namespace bws {
-class Debug {
+class debugger {
 public:
-    Debug();
-    virtual ~Debug();
+    debugger();
+    virtual ~debugger();
 };
 }
 #endif /* DEBUG_HH_ */

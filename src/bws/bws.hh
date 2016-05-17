@@ -22,39 +22,39 @@ public:
             const string& s_initl, const string& s_final,
             const bool& is_self_loop = false);
 
-    const deque<Thread_State>& get_final_TS() const {
+    const deque<thread_state>& get_final_TS() const {
         return final_TS;
     }
 
-    const deque<Thread_State>& get_initl_TS() const {
+    const deque<thread_state>& get_initl_TS() const {
         return initl_TS;
     }
 
 private:
-    deque<Thread_State> initl_TS;
-    deque<Thread_State> final_TS;
+    deque<thread_state> initl_TS;
+    deque<thread_state> final_TS;
     adj_list reverse_TTS;
     adj_list respawn_TTS;
-    map<Shared_State, set<Local_State>> expansion_L;
+    map<shared_state, set<local_state>> candidate_L;
 
     bool standard_BWS();
-    deque<Global_State> step(const Global_State& _tau);
-    bool is_spawn_transition(const Thread_State& src, const Thread_State& dst);
+    deque<global_state> step(const global_state& _tau);
+    bool is_spawn_transition(const thread_state& src, const thread_state& dst);
 
-    bool is_reached(const Global_State& s);
-    bool is_covered(const Global_State& s1, const Global_State& s2);
-    bool is_minimal(const Global_State& s, const deque<Global_State>& R);
-    void minimize(const Global_State& s, deque<Global_State>& R);
+    bool is_reached(const global_state& s);
+    bool is_covered(const global_state& s1, const global_state& s2);
+    bool is_minimal(const global_state& s, const deque<global_state>& R);
+    void minimize(const global_state& s, deque<global_state>& R);
 
-    Locals update_counter(const Locals &Z, const Local_State &dec,
-            const Local_State &inc);
-    Locals update_counter(const Locals &Z, const Local_State &dec,
-            const Local_State &inc, bool& is_spawn);
+    ca_locals update_counter(const ca_locals &Z, const local_state &dec,
+            const local_state &inc);
+    ca_locals update_counter(const ca_locals &Z, const local_state &dec,
+            const local_state &inc, bool& is_spawn);
     string parse_BP(const string& filename);
 
     bool is_connected();
 
-    Thread_State set_up_TS(const string& s_ts);
+    thread_state set_up_TS(const string& s_ts);
 };
 
 } /* namespace sura */

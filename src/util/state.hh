@@ -13,12 +13,12 @@
 namespace bws {
 
 /// define local state
-typedef unsigned short Local_State;
+typedef unsigned short local_state;
 /// define the size of local states
 typedef unsigned short size_l;
 
 /// define shared state
-typedef unsigned short Shared_State;
+typedef unsigned short shared_state;
 /// define size of shared states
 typedef unsigned short size_s;
 
@@ -29,36 +29,36 @@ typedef unsigned short size_p;
 typedef unsigned int id_thread_state;
 
 /// class thread state
-class Thread_State {
+class thread_state {
 public:
     static size_s S; /// the size of shared state
     static size_l L; /// the size of local  state
 
-    inline Thread_State();
-    inline Thread_State(const Thread_State& t);
-    inline Thread_State(const Shared_State& share, const Local_State& local);
-    ~Thread_State() {
+    inline thread_state();
+    inline thread_state(const thread_state& t);
+    inline thread_state(const shared_state& share, const local_state& local);
+    ~thread_state() {
     }
 
     ostream& to_stream(ostream& out = cout) const;
 
-    inline Local_State get_local() const {
+    inline local_state get_local() const {
         return local;
     }
 
-    inline Shared_State get_share() const {
+    inline shared_state get_share() const {
         return share;
     }
 
 private:
-    Shared_State share;
-    Local_State local;
+    shared_state share;
+    local_state local;
 };
 
 /**
  * @brief default constructor
  */
-inline Thread_State::Thread_State() :
+inline thread_state::thread_state() :
         share(0), local(0) {
 }
 
@@ -66,7 +66,7 @@ inline Thread_State::Thread_State() :
  * @brief constructor with thread state
  * @param t
  */
-inline Thread_State::Thread_State(const Thread_State& t) :
+inline thread_state::thread_state(const thread_state& t) :
         share(t.share), local(t.local) {
 
 }
@@ -76,8 +76,8 @@ inline Thread_State::Thread_State(const Thread_State& t) :
  * @param share: shared state
  * @param local: local  state
  */
-inline Thread_State::Thread_State(const Shared_State& share,
-        const Local_State& local) :
+inline thread_state::thread_state(const shared_state& share,
+        const local_state& local) :
         share(share), local(local) {
     __SAFE_ASSERT__(share < S && local < L);
 }
@@ -87,7 +87,7 @@ inline Thread_State::Thread_State(const Shared_State& share,
  * @param out
  * @return ostream
  */
-inline ostream& Thread_State::to_stream(ostream& out) const {
+inline ostream& thread_state::to_stream(ostream& out) const {
     out << "(" << share << "|" << local << ")";
     return out;
 }
@@ -98,7 +98,7 @@ inline ostream& Thread_State::to_stream(ostream& out) const {
  * @param ts
  * @return ostream
  */
-inline ostream& operator<<(ostream& out, const Thread_State& t) {
+inline ostream& operator<<(ostream& out, const thread_state& t) {
     return t.to_stream(out);
 }
 
@@ -110,7 +110,7 @@ inline ostream& operator<<(ostream& out, const Thread_State& t) {
  * 		   true : if t1 == t2
  * 		   false: otherwise
  */
-inline bool operator==(const Thread_State& t1, const Thread_State& t2) {
+inline bool operator==(const thread_state& t1, const thread_state& t2) {
     return t1.get_share() == t2.get_share() && t1.get_local() == t2.get_local();
 }
 
@@ -122,7 +122,7 @@ inline bool operator==(const Thread_State& t1, const Thread_State& t2) {
  * 		   true : if t1 == t2
  * 		   false: otherwise
  */
-inline bool operator!=(const Thread_State& t1, const Thread_State& t2) {
+inline bool operator!=(const thread_state& t1, const thread_state& t2) {
     return !(t1 == t2);
 }
 
@@ -134,7 +134,7 @@ inline bool operator!=(const Thread_State& t1, const Thread_State& t2) {
  * 		   true : if t1 < t2
  * 		   false: otherwise
  */
-inline bool operator<(const Thread_State& t1, const Thread_State& t2) {
+inline bool operator<(const thread_state& t1, const thread_state& t2) {
     if (t1.get_share() == t2.get_share())
         return t1.get_local() < t2.get_local();
     else
@@ -149,47 +149,47 @@ inline bool operator<(const Thread_State& t1, const Thread_State& t2) {
  * 		   true : if t1 > t2
  * 		   false: otherwise
  */
-inline bool operator>(const Thread_State& t1, const Thread_State& t2) {
+inline bool operator>(const thread_state& t1, const thread_state& t2) {
     return t2 < t1;
 }
 
 /// class global state
-typedef map<Local_State, size_p> Locals;
+typedef map<local_state, size_p> ca_locals;
 
-class Global_State {
+class global_state {
 public:
-    inline Global_State();
-    inline Global_State(const Thread_State& t);
-    inline Global_State(const Thread_State& t, const size_p& n);
-    inline Global_State(const Shared_State& share, const Locals& locals);
-    inline Global_State(const Shared_State& share, const Locals& locals,
-            shared_ptr<const Global_State> pi);
+    inline global_state();
+    inline global_state(const thread_state& t);
+    inline global_state(const thread_state& t, const size_p& n);
+    inline global_state(const shared_state& share, const ca_locals& locals);
+    inline global_state(const shared_state& share, const ca_locals& locals,
+            shared_ptr<const global_state> pi);
 
-    ~Global_State() {
+    ~global_state() {
     }
 
     ostream& to_stream(ostream& out = cout, const string& sep = "|") const;
 
-    inline const Locals& get_locals() const {
+    inline const ca_locals& get_locals() const {
         return locals;
     }
 
-    inline const shared_ptr<const Global_State>& get_pi() const {
+    inline const shared_ptr<const global_state>& get_pi() const {
         return pi;
     }
 
-    inline Shared_State get_share() const {
+    inline shared_state get_share() const {
         return share;
     }
 
-    inline void set_pi(const shared_ptr<const Global_State>& pi) {
+    inline void set_pi(const shared_ptr<const global_state>& pi) {
         this->pi = pi;
     }
 
 private:
-    Shared_State share;
-    Locals locals;
-    shared_ptr<const Global_State> pi;
+    shared_state share;
+    ca_locals locals;
+    shared_ptr<const global_state> pi;
 };
 
 /**
@@ -197,16 +197,16 @@ private:
  *        share  = 0
  *        locals = empty map
  */
-inline Global_State::Global_State() :
-        share(0), locals(Locals()), pi(nullptr) {
+inline global_state::global_state() :
+        share(0), locals(ca_locals()), pi(nullptr) {
 }
 
 /**
  * @brief constructor with a thread state
  * @param t
  */
-inline Global_State::Global_State(const Thread_State& t) :
-        share(t.get_share()), locals(Locals()), pi(nullptr) {
+inline global_state::global_state(const thread_state& t) :
+        share(t.get_share()), locals(ca_locals()), pi(nullptr) {
     locals.emplace(t.get_local(), 1);
 }
 
@@ -215,8 +215,8 @@ inline Global_State::Global_State(const Thread_State& t) :
  * @param t
  * @param n
  */
-inline Global_State::Global_State(const Thread_State& t, const size_p& n) :
-        share(t.get_share()), locals(Locals()), pi(nullptr) {
+inline global_state::global_state(const thread_state& t, const size_p& n) :
+        share(t.get_share()), locals(ca_locals()), pi(nullptr) {
     locals.emplace(t.get_local(), n);
 }
 
@@ -225,8 +225,8 @@ inline Global_State::Global_State(const Thread_State& t, const size_p& n) :
  * @param share : shared state
  * @param locals: local states represented in counter abstraction form
  */
-inline Global_State::Global_State(const Shared_State& share,
-        const Locals& locals) :
+inline global_state::global_state(const shared_state& share,
+        const ca_locals& locals) :
         share(share), locals(locals), pi(nullptr) {
 }
 
@@ -236,8 +236,8 @@ inline Global_State::Global_State(const Shared_State& share,
  * @param locals: local states represented in counter abstraction form
  * @param pi	: the father of current global state
  */
-inline Global_State::Global_State(const Shared_State& share,
-        const Locals& locals, shared_ptr<const Global_State> pi) :
+inline global_state::global_state(const shared_state& share,
+        const ca_locals& locals, shared_ptr<const global_state> pi) :
         share(share), locals(locals), pi(pi) {
 }
 
@@ -247,7 +247,7 @@ inline Global_State::Global_State(const Shared_State& share,
  * @param sep
  * @return
  */
-inline ostream& Global_State::to_stream(ostream& out, const string& sep) const {
+inline ostream& global_state::to_stream(ostream& out, const string& sep) const {
     out << "<" << this->share << "|";
     for (auto iloc = this->locals.begin(); iloc != this->locals.end(); ++iloc) {
         out << "(" << iloc->first << "," << iloc->second << ")";
@@ -262,7 +262,7 @@ inline ostream& Global_State::to_stream(ostream& out, const string& sep) const {
  * @param g
  * @return
  */
-inline ostream& operator<<(ostream& out, const Global_State& g) {
+inline ostream& operator<<(ostream& out, const global_state& g) {
     return g.to_stream(out);
 }
 
@@ -274,7 +274,7 @@ inline ostream& operator<<(ostream& out, const Global_State& g) {
  * 		   true : if s1 < s2
  * 		   false: otherwise
  */
-inline bool operator<(const Global_State& s1, const Global_State& s2) {
+inline bool operator<(const global_state& s1, const global_state& s2) {
     if (s1.get_share() == s2.get_share()) {
         return COMPARE::compare_map(s1.get_locals(), s2.get_locals()) == -1;
     } else {
@@ -290,7 +290,7 @@ inline bool operator<(const Global_State& s1, const Global_State& s2) {
  * 		   true : if s1 > s2
  * 		   false: otherwise
  */
-inline bool operator>(const Global_State& s1, const Global_State& s2) {
+inline bool operator>(const global_state& s1, const global_state& s2) {
     return s2 < s1;
 }
 
@@ -302,7 +302,7 @@ inline bool operator>(const Global_State& s1, const Global_State& s2) {
  * 		   true : if s1 == s2
  * 		   false: otherwise
  */
-inline bool operator==(const Global_State& s1, const Global_State& s2) {
+inline bool operator==(const global_state& s1, const global_state& s2) {
     if (s1.get_share() == s2.get_share()) {
         if (s1.get_locals().size() == s2.get_locals().size()) {
             auto is1 = s1.get_locals().begin(), is2 = s2.get_locals().begin();
@@ -325,7 +325,7 @@ inline bool operator==(const Global_State& s1, const Global_State& s2) {
  * 		   true : if s1 != s2
  * 		   false: otherwise
  */
-inline bool operator!=(const Global_State& s1, const Global_State& s2) {
+inline bool operator!=(const global_state& s1, const global_state& s2) {
     return !(s1 == s2);
 }
 
