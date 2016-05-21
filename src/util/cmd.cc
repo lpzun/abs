@@ -161,18 +161,23 @@ void cmd_line::print_usage_info(const string& prog_name, cushort& indent,
     out << "\n";
     out << v_info << "\n";
 
-    out << PPRINT::widthify("Usage:", this->name_width, PPRINT::LEFTJUST)
-            << PPRINT::widthify("Purpose:", PPRINT::LEFTJUST) << "\n";
+    out
+            << PPRINT::widthify("Usage:", this->name_width,
+                    PPRINT::alignment::LEFTJUST)
+            << PPRINT::widthify("Purpose:", 0, PPRINT::alignment::LEFTJUST)
+            << "\n";
     out << " "
             << PPRINT::widthify(
                     prog_name + " " + SHORT_HELP_OPT + " [" + LONG_HELP_OPT
-                            + "]", this->name_width, PPRINT::LEFTJUST)
-            << PPRINT::widthify("show help message", PPRINT::LEFTJUST) << "\n";
+                            + "]", this->name_width,
+                    PPRINT::alignment::LEFTJUST)
+            << PPRINT::widthify("show help message", 0,
+                    PPRINT::alignment::LEFTJUST) << "\n";
     out << " "
             << PPRINT::widthify(prog_name + " source.bp ", this->name_width,
-                    PPRINT::LEFTJUST)
-            << PPRINT::widthify("check given program", PPRINT::LEFTJUST)
-            << "\n";
+                    PPRINT::alignment::LEFTJUST)
+            << PPRINT::widthify("check given program", 0,
+                    PPRINT::alignment::LEFTJUST) << "\n";
 
     for (size_t i = 0; i < types.size(); i++) {
         out << types[i] << "\n";
@@ -184,11 +189,11 @@ void cmd_line::print_usage_info(const string& prog_name, cushort& indent,
                         << PPRINT::widthify(
                                 iopt->get_short_name() + " ["
                                         + iopt->get_long_name() + "] arg",
-                                this->name_width, PPRINT::LEFTJUST)
+                                this->name_width, PPRINT::alignment::LEFTJUST)
                         << PPRINT::widthify(
                                 PPRINT::widthify(iopt->get_meaning(),
-                                        this->name_width + 2), PPRINT::LEFTJUST)
-                        << "\n";
+                                        this->name_width + 2), 0,
+                                PPRINT::alignment::LEFTJUST) << "\n";
             }
 
         auto iswts = switches.find(i);
@@ -199,9 +204,9 @@ void cmd_line::print_usage_info(const string& prog_name, cushort& indent,
                         << PPRINT::widthify(
                                 iswt->get_short_name() + " ["
                                         + iswt->get_long_name() + "]",
-                                this->name_width, PPRINT::LEFTJUST)
-                        << PPRINT::widthify(iswt->get_meaning(),
-                                PPRINT::LEFTJUST) << "\n";
+                                this->name_width, PPRINT::alignment::LEFTJUST)
+                        << PPRINT::widthify(iswt->get_meaning(), 0,
+                                PPRINT::alignment::LEFTJUST) << "\n";
             }
 
         out << endl;
@@ -221,7 +226,7 @@ void cmd_line::create_argument_list() {
     this->add_switch(default_opts(), SHORT_HELP_OPT, LONG_HELP_OPT,
             "help information");
 
-    /// problem instance
+/// problem instance
     this->add_option(prob_inst_opts(), "-f", "--input-file",
             "boolean program or thread transition system", "X");
 
@@ -234,12 +239,13 @@ void cmd_line::create_argument_list() {
     this->add_switch(prob_inst_opts(), "-l", "--adj-list",
             "show the adjacency list");
 
-    /// exploration mode
+/// exploration mode
 
-    /// SMT Solver options
-    //DBG_STD(cmd.add_option(SMT_SOLVER_OPTS, "-smt", "--smt-solver", "set the SMT Solver to be used", "z3"));
+/// SMT Solver options
+/// DBG_STD(cmd.add_option(SMT_SOLVER_OPTS, "-smt", "--smt-solver",
+/// "set the SMT Solver to be used", "z3"));
 
-    /// other options
+/// other options
     this->add_switch(other_opts(), "-cmd", "--cmd-line",
             "show the command line");
     this->add_switch(other_opts(), "-all", "--all",
@@ -251,19 +257,19 @@ void cmd_line::create_argument_list() {
 string cmd_line::create_version_info() {
     string info = ""; ///
     info ///
-    .append("* *   _/_/_/_/_/         _/_/_/_/         _/_/_/_/     * *\n") ///
-    .append("* *      _/            _/                _/            * *\n") ///
-    .append("* *     _/              _/_/_/          _/_/_/_/       * *\n") ///
-    .append("* *    _/                   _/         _/              * *\n") ///
-    .append("* *   _/            _/_/_/_/          _/_/_/_/    " + VERSION ///
+    .append("* *       _/_/_/         _/_/_/_/        _/_/_/_/   * *\n") ///
+    .append("* *     _/    _/        _/    _/        _/          * *\n") ///
+    .append("* *    _/_/_/_/        _/_/_/_/        _/_/_/_/     * *\n") ///
+    .append("* *   _/    _/        _/    _/              _/      * *\n") ///
+    .append("* *  _/    _/        _/_/_/_/        _/_/_/_/  " + VERSION ///
             + " * *\n") ///
-    .append("----------------------------------------------------------\n") ///
-    .append("* *        Unbounded-Thread Program Verification       * *\n") ///
-    .append("* *            using Thread-State Equations            * *\n") ///
-    .append("* *            Thomas Wahl's Research Group            * *\n") ///
-    .append("* *        Northeastern University, United States      * *\n") ///
-    .append("* *                 Build Time: ").append(
-    __DATE__).append(" @ ").append(__TIME__).append(" * *\n").append(
-            "----------------------------------------------------------\n");
+    .append("-------------------------------------------------------\n") ///
+    .append("* *      Unbounded-Thread Program Verification      * *\n") ///
+    .append("* *              via Backward Search                * *\n") ///
+    .append("* *       Peizun Liu @ Thomas Wahl's Group          * *\n") ///
+    .append("* *     Northeastern University, United States      * *\n") ///
+    .append("* *                        Build Time @ ").append(
+    __DATE__).append(" * *\n").append(
+            "-------------------------------------------------------\n");
     return info;
 }

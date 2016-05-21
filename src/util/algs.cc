@@ -45,7 +45,7 @@ short compare_map(const map<ushort, ushort>& m1,
                 return 1;
             }
         }
-        s1_iter++, s2_iter++;
+        ++s1_iter, ++s2_iter;
     }
     throw bws::bws_runtime_error("COMPARE::compare: internal");
 }
@@ -64,15 +64,15 @@ template<class T> short compare_container(const T& x, const T& y) {
     typename T::const_iterator xi = x.begin(), yi = y.begin(), x_end = x.end(),
             y_end = y.end();
     while (true) {
-        if (xi == x_end && yi == y_end) // x = y
+        if (xi == x_end && yi == y_end) /// x = y
             return 0;
-        else if (xi == x_end)           // x < y
+        else if (xi == x_end)           /// x < y
             return -1;
-        else if (yi == y_end)           // y < x
+        else if (yi == y_end)           /// y < x
             return +1;
-        else if (*xi < *yi)             // x < y
+        else if (*xi < *yi)             /// x < y
             return -1;
-        else if (*yi < *xi)             // y < x
+        else if (*yi < *xi)             /// y < x
             return +1;
         ++xi, ++yi;
     }
@@ -150,25 +150,6 @@ string tabularize(const string& s, const string& sep,
 }
 
 /**
- * @brief Convert object x into a string using sprintf and the format string
- *        supplied (which must include the %). snprintf must be defined for
- *        object x (i.e. mainly basic types, such as numeric ones). If output
- *        is expected to be very long, provide sufficient length argument
- * @param x
- * @param format
- * @param length
- * @return
- */
-template<class T> string formatString(const T& x, const string& format,
-        cushort& length) {
-    char* s = new char[length];
-    snprintf(s, length, format.c_str(), x);
-    string result = s;
-    delete s;
-    return result;
-}
-
-/**
  * @brief for example:
  * 		given   20, produces "20s",
  * 		given   80, produces "1:20m",
@@ -179,17 +160,18 @@ template<class T> string formatString(const T& x, const string& format,
 string hourize(culong& seconds) {
     if (seconds < 60)
         return widthify(seconds) + "s";
-    else if (seconds < 3600) { // 60 <= seconds < 3600
+    else if (seconds < 3600) { /// 60 <= seconds < 3600
         ushort m = seconds / 60;
         ushort s = seconds % 60;
-        return widthify(m) + ":" + widthify(s, 2, RIGHTJUST, '0') + "m";
-    } else {                     // 3600 <= seconds < infty
+        return widthify(m) + ":" + widthify(s, 2, alignment::RIGHTJUST, '0')
+                + "m";
+    } else {                   /// 3600 <= seconds < infty
         ushort h = seconds / 3600;
         ushort s = seconds % 3600;
         ushort m = s / 60;
         s = s % 60;
-        return widthify(h) + ":" + widthify(m, 2, RIGHTJUST, '0') + ":"
-                + widthify(s, 2, RIGHTJUST, '0') + "h";
+        return widthify(h) + ":" + widthify(m, 2, alignment::RIGHTJUST, '0')
+                + ":" + widthify(s, 2, alignment::RIGHTJUST, '0') + "h";
     }
 }
 
@@ -215,5 +197,5 @@ string firstTimeOrNot(bool& firstTime, const string& connective,
     return result;
 }
 
-}/// end of COMPARE
+} /// end of COMPARE
 

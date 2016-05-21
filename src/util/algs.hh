@@ -23,16 +23,16 @@ namespace PPRINT {
 vector<string> split(const string &s, char delim, vector<string> &elems);
 vector<string> split(const string &s, const char& delim);
 
-typedef enum {
+enum class alignment {
     LEFTJUST, RIGHTJUST, CENTERED
-} Alignment;
+};
 
 template<class T>
 string width(const T& x, cushort& width = 0);
 
 template<class T>
-string widthify(const T& x, cushort& width = 0, const Alignment& c = CENTERED,
-        const char& fill = ' ') {
+string widthify(const T& x, cushort& width = 0, const alignment& c =
+        alignment::CENTERED, const char& fill = ' ') {
     std::ostringstream os;
     os << x;
     string s = os.str();
@@ -43,13 +43,13 @@ string widthify(const T& x, cushort& width = 0, const Alignment& c = CENTERED,
     ushort addlength = width - n;
     string result;
     switch (c) {
-    case LEFTJUST:
+    case alignment::LEFTJUST:
         result = s + string(addlength, fill);
         break;
-    case RIGHTJUST:
+    case alignment::RIGHTJUST:
         result = string(addlength, fill) + s;
         break;
-    case CENTERED:
+    case alignment::CENTERED:
         result = (
                 addlength % 2 == 0 ?
                         string(addlength / 2, fill) + s
