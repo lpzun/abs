@@ -131,7 +131,7 @@ bool cmd_line::arg_bool(const unsigned short& type, const string& arg) {
             Switch(type, arg));
     if (ifind == switches[type].end())
         throw bws::bws_runtime_error(
-                "Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
+                "cmd_line:: argument " + arg + " does not exist!");
     return ifind->is_value();
 }
 
@@ -146,7 +146,7 @@ string cmd_line::arg_value(const short& type, const string& arg) {
             Options(type, arg));
     if (ifind == options[type].end())
         throw bws::bws_runtime_error(
-                "Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
+                "cmd_line:: argument " + arg + " does not exist!");
     return ifind->get_value();
 }
 
@@ -226,7 +226,7 @@ void cmd_line::create_argument_list() {
     this->add_switch(default_opts(), SHORT_HELP_OPT, LONG_HELP_OPT,
             "help information");
 
-/// problem instance
+    /// problem instance
     this->add_option(prob_inst_opts(), "-f", "--input-file",
             "boolean program or thread transition system", "X");
 
@@ -239,13 +239,11 @@ void cmd_line::create_argument_list() {
     this->add_switch(prob_inst_opts(), "-l", "--adj-list",
             "show the adjacency list");
 
-/// exploration mode
+    /// exploration mode
+//    options DBG_STD(cmd.add_option(SMT_SOLVER_OPTS, "-smt", "--smt-solver",
+//                    "set the SMT Solver to be used", "z3"));
 
-/// SMT Solver options
-/// DBG_STD(cmd.add_option(SMT_SOLVER_OPTS, "-smt", "--smt-solver",
-/// "set the SMT Solver to be used", "z3"));
-
-/// other options
+    /// other options
     this->add_switch(other_opts(), "-cmd", "--cmd-line",
             "show the command line");
     this->add_switch(other_opts(), "-all", "--all",
