@@ -266,7 +266,7 @@ void BWS::minimize(const global_state& s, deque<global_state>& R) {
  */
 deque<global_state> BWS::step(const global_state& _tau) {
     deque<global_state> images;
-    cout << _tau << "\n"; /// delete this ---------------
+//    cout << _tau << "\n"; /// delete this ---------------
     auto iexps = this->candidate_L.find(_tau.get_share());
     if (iexps != this->candidate_L.end())
         for (const auto& local : iexps->second) {
@@ -348,8 +348,6 @@ ca_locals BWS::update_counter(const ca_locals &Z, const local_state &dec,
                 _Z.erase(idec);
         }
         is_updated = true;
-    } else {
-        is_updated = false;
     }
     return _Z;
 }
@@ -391,10 +389,9 @@ bool BWS::is_covered(const global_state& s1, const global_state& s2) {
                 return false;
             /// compare the map's contents
             if (is1->first == is2->first) {
-                if (is1->second <= is2->second)
-                    ++is1, ++is2;
-                else
+                if (is1->second > is2->second)
                     return false;
+                ++is1, ++is2;
             } else if (is1->first > is2->first) {
                 ++is2;
             } else if (is1->first < is2->first) {
