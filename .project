@@ -3,6 +3,7 @@
 	<name>abws</name>
 	<comment></comment>
 	<projects>
+		<project>iotf</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -24,11 +25,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>iotf</name>
-			<type>2</type>
-			<location>/Users/lpzun/Peizun/Eclipse/workspace/iotf</location>
-		</link>
-	</linkedResources>
 </projectDescription>
